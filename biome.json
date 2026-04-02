@@ -18,6 +18,22 @@
     "enabled": true,
     "rules": {
       "recommended": true,
+      "complexity": {
+        "noExcessiveCognitiveComplexity": {
+          "level": "error",
+          "options": {
+            "maxAllowedComplexity": 30
+          }
+        }
+      },
+      "style": {
+        "useFilenamingConvention": {
+          "level": "error",
+          "options": {
+            "filenameCases": ["PascalCase"]
+          }
+        }
+      },
       "suspicious": {
         "noUnknownAtRules": "off"
       }
@@ -34,6 +50,23 @@
       }
     }
   },
+  "overrides": [
+    {
+      "includes": [
+        "app/**",
+        "components/ui/**",
+        "next.config.ts",
+        "postcss.config.mjs"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "useFilenamingConvention": "off"
+          }
+        }
+      }
+    }
+  ],
   "extends": [
     "ultracite/biome/core",
     "ultracite/biome/next",
