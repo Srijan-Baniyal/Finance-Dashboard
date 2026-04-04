@@ -4,6 +4,9 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { cn } from "@/lib/Utils";
+import { ReactQueryProvider } from "@/providers/ReactQueryProvider";
+import { SuspenseProvider } from "@/providers/SuspenseProvider";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -37,14 +40,19 @@ export default function RootLayout({
         "antialiased",
         geistSans.variable,
         geistMono.variable,
-        "font-mono",
+        "font-sans",
         jetbrainsMono.variable
       )}
       lang="en"
+      suppressHydrationWarning={true}
     >
       <body className="flex min-h-full flex-col">
         <TooltipProvider>
-          {children}
+          <ThemeProvider>
+            <ReactQueryProvider>
+              <SuspenseProvider>{children}</SuspenseProvider>
+            </ReactQueryProvider>
+          </ThemeProvider>
           <Toaster
             duration={20}
             position="top-center"
