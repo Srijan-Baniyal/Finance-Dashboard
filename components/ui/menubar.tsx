@@ -19,7 +19,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/Utils";
+import { cn } from "@/lib/Utilss";
 
 function Menubar({ className, ...props }: MenubarPrimitive.Props) {
   return (

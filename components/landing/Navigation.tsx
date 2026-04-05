@@ -4,7 +4,7 @@ import { IconMoon, IconSun, IconWallet } from "@tabler/icons-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/Utils";
+import { cn } from "@/lib/Utilss";
 import { useStore } from "@/store/UseStore";
 
 export function Navigation() {

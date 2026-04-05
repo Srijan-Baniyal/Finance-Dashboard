@@ -13,7 +13,7 @@ import {
   useState,
 } from "react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/Utils";
+import { cn } from "@/lib/Utilss";
 
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;

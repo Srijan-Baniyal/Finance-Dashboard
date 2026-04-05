@@ -43,7 +43,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/UseMobile";
-import { cn } from "@/lib/Utils";
+import { cn } from "@/lib/Utilss";
 import { useStore } from "@/store/UseStore";
 import type { Role } from "@/types/Index";
 

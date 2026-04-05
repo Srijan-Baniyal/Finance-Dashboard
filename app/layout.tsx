@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { cn } from "@/lib/Utils";
+import { cn } from "@/lib/Utilss";
 import { ReactQueryProvider } from "@/providers/ReactQueryProvider";
 import { SuspenseProvider } from "@/providers/SuspenseProvider";
 import { ThemeProvider } from "@/providers/ThemeProvider";

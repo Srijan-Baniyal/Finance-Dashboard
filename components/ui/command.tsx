@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
-import { cn } from "@/lib/Utils";
+import { cn } from "@/lib/Utilss";
 
 function Command({
   className,

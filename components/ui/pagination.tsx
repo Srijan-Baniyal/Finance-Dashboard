@@ -5,7 +5,7 @@ import {
 } from "@tabler/icons-react";
 import type * as React from "react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/Utils";
+import { cn } from "@/lib/Utilss";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
