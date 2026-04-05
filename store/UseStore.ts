@@ -110,6 +110,7 @@ export const useStore = create<AppStore>()(
       name: "findash-store",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
+        role: state.role,
         transactions: state.transactions,
         theme: state.theme,
       }),

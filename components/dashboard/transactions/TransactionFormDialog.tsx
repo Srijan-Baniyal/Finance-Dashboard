@@ -45,7 +45,7 @@ export function TransactionFormDialog({
   return (
     <Dialog onOpenChange={(nextOpen) => onOpenChange(nextOpen)} open={open}>
       <DialogContent
-        className="max-h-[90vh] max-w-4xl overflow-hidden rounded-2xl border border-border/60 bg-card/95 p-0 shadow-2xl"
+        className="max-h-full overflow-hidden rounded-2xl border border-border/60 bg-card/95 p-0 shadow-2xl sm:max-w-4xl"
         showCloseButton={false}
       >
         <div className="border-border/50 border-b bg-muted/20 px-6 py-5 sm:px-8">
@@ -65,8 +65,8 @@ export function TransactionFormDialog({
         </div>
 
         <div className="overflow-y-auto px-5 py-5 sm:px-8 sm:py-6">
-          <div className="grid gap-4 lg:grid-cols-3">
-            <div className="space-y-2 rounded-xl border border-border/60 bg-background/55 p-3 lg:col-span-2">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="space-y-2 rounded-xl border border-border/60 bg-background/55 p-3 md:col-span-2 xl:col-span-2">
               <Label
                 className="font-semibold text-[10px] text-muted-foreground uppercase tracking-[0.2em]"
                 htmlFor="transaction-description"
@@ -206,7 +206,7 @@ export function TransactionFormDialog({
               </Select>
             </div>
 
-            <div className="space-y-2 rounded-xl border border-border/60 bg-background/55 p-3 lg:col-span-3">
+            <div className="space-y-2 rounded-xl border border-border/60 bg-background/55 p-3 md:col-span-2 xl:col-span-3">
               <Label
                 className="font-semibold text-[10px] text-muted-foreground uppercase tracking-[0.2em]"
                 htmlFor="transaction-note"
