@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import { Footer } from "@/components/landing/Footer";
 import { HeroSection } from "@/components/landing/HeroSection";
 import { Navigation } from "@/components/landing/Navigation";
+
+export const metadata: Metadata = {
+  title: "Home | FinDash",
+  description:
+    "FinDash home page with quick entry to your personal finance dashboard and tools.",
+};
 
 export default function Home() {
   return (
