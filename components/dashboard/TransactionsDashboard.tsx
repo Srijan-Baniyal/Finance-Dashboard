@@ -3,6 +3,7 @@
 import {
   IconFileArrowRight,
   IconFileExport,
+  IconFileTypePdf,
   IconListDetails,
   IconPlus,
   IconTrendingDown,
@@ -10,6 +11,7 @@ import {
   IconWallet,
 } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -18,6 +20,7 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
@@ -30,6 +33,7 @@ import type { Transaction, TransactionDraft } from "@/types/Index";
 import {
   exportTransactionsCsv,
   exportTransactionsJson,
+  exportTransactionsPdf,
 } from "@/utils/ExportData";
 import { formatCurrency } from "@/utils/Formatters";
 import { DashboardPageFrame } from "./DashboardPageFrame";
@@ -47,6 +51,9 @@ const buildInitialDraft = (): TransactionDraft => ({
   category: "Food & Dining",
   note: "",
 });
+
+const clamp = (v: number, lo: number, hi: number) =>
+  Math.max(lo, Math.min(hi, v));
 
 export function TransactionsDashboard() {
   const role = useStore((state) => state.role);
@@ -81,6 +88,31 @@ export function TransactionsDashboard() {
 
   const net = totals.income - totals.expense;
   const isNetPositive = net >= 0;
+  const filteredCount = filteredTransactions.length;
+  const totalCount = transactions.length;
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (filters.search.trim()) {
+      count++;
+    }
+    if (filters.category !== "all") {
+      count++;
+    }
+    if (filters.type !== "all") {
+      count++;
+    }
+    if (filters.dateFrom) {
+      count++;
+    }
+    if (filters.dateTo) {
+      count++;
+    }
+    return count;
+  }, [filters]);
+
+  const coverage =
+    totalCount > 0 ? clamp((filteredCount / totalCount) * 100, 0, 100) : 0;
 
   const closeDialog = () => {
     setFormOpen(false);
@@ -132,37 +164,34 @@ export function TransactionsDashboard() {
   return (
     <DashboardPageFrame>
       <section className="space-y-8">
-        <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
-          <div className="relative w-full overflow-hidden rounded-2xl border border-border/80 bg-card/40 px-5 py-6 shadow-sm sm:px-8 sm:py-7 lg:max-w-2xl">
-            <div className="pointer-events-none absolute -bottom-16 -left-16 h-40 w-40 rounded-full bg-primary/8 blur-3xl" />
-            <div className="relative">
-              <p className="mb-1.5 flex items-center gap-2 font-medium text-[11px] text-muted-foreground uppercase tracking-[0.22em]">
-                <IconListDetails className="h-3.5 w-3.5 text-primary" />
-                Ledger
-              </p>
-              <h1 className="font-heading font-semibold text-3xl tracking-tight sm:text-4xl">
-                Transactions
-              </h1>
-              <p className="mt-2 text-muted-foreground text-sm leading-relaxed">
-                Search, slice, and export — every movement in one place.
-              </p>
-            </div>
-          </div>
+        <div>
+          <p className="mb-2 flex items-center gap-1.5 font-semibold text-[10px] text-muted-foreground uppercase tracking-[0.25em]">
+            <IconListDetails className="h-3 w-3 text-primary" />
+            Ledger
+          </p>
+          <h1 className="font-heading font-semibold text-3xl tracking-tight sm:text-4xl">
+            Transactions
+          </h1>
+          <p className="mt-2 max-w-lg text-muted-foreground text-sm leading-relaxed">
+            Search, filter, and manage every movement in one clean timeline.
+          </p>
+        </div>
 
-          {role === "admin" && (
-            <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
-              {/* Export buttons */}
+        {role === "admin" && (
+          <div className="overflow-hidden rounded-xl border border-border/60 bg-card/80 px-4 py-3 shadow-sm sm:px-5">
+            <div className="flex flex-wrap items-center gap-2">
               <Tooltip>
                 <TooltipTrigger
                   render={
                     <Button
-                      className="flex-1 gap-1.5 shadow-sm hover:bg-muted sm:flex-none"
+                      className="h-8 gap-1.5 hover:bg-muted"
                       onClick={() => exportTransactionsCsv(transactions)}
+                      size="sm"
                       type="button"
                       variant="outline"
                     >
-                      <IconFileArrowRight className="h-4 w-4" />
-                      CSV
+                      <IconFileArrowRight className="h-3.5 w-3.5" />
+                      Export CSV
                     </Button>
                   }
                 />
@@ -175,13 +204,14 @@ export function TransactionsDashboard() {
                 <TooltipTrigger
                   render={
                     <Button
-                      className="flex-1 gap-1.5 shadow-sm hover:bg-muted sm:flex-none"
+                      className="h-8 gap-1.5 hover:bg-muted"
                       onClick={() => exportTransactionsJson(transactions)}
+                      size="sm"
                       type="button"
                       variant="outline"
                     >
-                      <IconFileExport className="h-4 w-4" />
-                      JSON
+                      <IconFileExport className="h-3.5 w-3.5" />
+                      Export JSON
                     </Button>
                   }
                 />
@@ -190,21 +220,150 @@ export function TransactionsDashboard() {
                 </TooltipContent>
               </Tooltip>
 
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      className="h-8 gap-1.5 hover:bg-muted"
+                      onClick={() => exportTransactionsPdf(transactions)}
+                      size="sm"
+                      type="button"
+                      variant="outline"
+                    >
+                      <IconFileTypePdf className="h-3.5 w-3.5" />
+                      Export PDF
+                    </Button>
+                  }
+                />
+                <TooltipContent side="bottom">
+                  Export all transactions as PDF
+                </TooltipContent>
+              </Tooltip>
+
               <Separator
-                className="hidden h-6 sm:block"
+                className="mx-1 hidden h-6 sm:block"
                 orientation="vertical"
               />
 
               <Button
-                className="w-full gap-1.5 rounded-xl shadow-sm sm:w-auto"
+                className="h-8 gap-1.5 rounded-lg sm:ml-auto"
                 onClick={openCreate}
+                size="sm"
                 type="button"
               >
-                <IconPlus className="h-4 w-4" />
+                <IconPlus className="h-3.5 w-3.5" />
                 Add Transaction
               </Button>
             </div>
-          )}
+          </div>
+        )}
+
+        <div className="grid gap-px overflow-hidden rounded-2xl border border-border/60 bg-border/40 shadow-sm sm:grid-cols-3">
+          <div className="group bg-card/95 px-6 pt-5 pb-6 transition-colors hover:bg-card">
+            <div className="flex items-start justify-between">
+              <span className="font-medium text-[10px] text-muted-foreground uppercase tracking-[0.22em]">
+                Filtered Income
+              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500 transition-transform duration-200 group-hover:scale-110 dark:bg-emerald-500/20">
+                <IconTrendingUp className="h-3.5 w-3.5" />
+              </div>
+            </div>
+
+            <div className="mt-3 font-bold font-heading text-4xl text-emerald-600 tracking-tight dark:text-emerald-500">
+              {formatCurrency(totals.income)}
+            </div>
+
+            <p className="mt-5 text-[11px] text-muted-foreground">
+              Income inside current filters
+            </p>
+          </div>
+
+          <div className="group bg-card/95 px-6 pt-5 pb-6 transition-colors hover:bg-card">
+            <div className="flex items-start justify-between">
+              <span className="font-medium text-[10px] text-muted-foreground uppercase tracking-[0.22em]">
+                Filtered Expenses
+              </span>
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-rose-500/10 text-rose-500 transition-transform duration-200 group-hover:scale-110 dark:bg-rose-500/20">
+                <IconTrendingDown className="h-3.5 w-3.5" />
+              </div>
+            </div>
+
+            <div className="mt-3 font-bold font-heading text-4xl text-rose-600 tracking-tight dark:text-rose-500">
+              {formatCurrency(totals.expense)}
+            </div>
+
+            <p className="mt-5 text-[11px] text-muted-foreground">
+              Expense load in the visible slice
+            </p>
+          </div>
+
+          <div className="group bg-card/95 px-6 pt-5 pb-6 transition-colors hover:bg-card">
+            <div className="flex items-start justify-between">
+              <span className="font-medium text-[10px] text-muted-foreground uppercase tracking-[0.22em]">
+                Filtered Balance
+              </span>
+              <div
+                className={`flex h-7 w-7 items-center justify-center rounded-full transition-transform duration-200 group-hover:scale-110 ${
+                  isNetPositive
+                    ? "bg-primary/10 text-primary"
+                    : "bg-rose-500/10 text-rose-500 dark:bg-rose-500/20"
+                }`}
+              >
+                <IconWallet className="h-3.5 w-3.5" />
+              </div>
+            </div>
+
+            <div
+              className={`mt-3 font-bold font-heading text-4xl tracking-tight ${
+                isNetPositive
+                  ? "text-foreground"
+                  : "text-rose-600 dark:text-rose-500"
+              }`}
+            >
+              {formatCurrency(net)}
+            </div>
+
+            <p className="mt-5 text-[11px] text-muted-foreground">
+              Net movement in current result set
+            </p>
+          </div>
+        </div>
+
+        <div className="overflow-hidden rounded-xl border border-border/60 bg-card/80 px-5 py-4 shadow-sm">
+          <div className="mb-3 flex items-center justify-between gap-4">
+            <span className="font-semibold text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+              Visible coverage
+            </span>
+            <span className="font-mono text-[11px] text-muted-foreground tabular-nums">
+              {filteredCount} / {totalCount} transactions shown
+            </span>
+          </div>
+
+          <Progress className="gap-0" value={coverage} />
+
+          <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-[11px] text-muted-foreground">
+                Active filters
+              </span>
+              <Badge
+                className="h-5 rounded-full px-1.5 text-[10px]"
+                variant="secondary"
+              >
+                {activeFilterCount}
+              </Badge>
+            </div>
+            <span
+              className={`font-medium text-[11px] tabular-nums ${
+                isNetPositive
+                  ? "text-emerald-600 dark:text-emerald-500"
+                  : "text-rose-600 dark:text-rose-500"
+              }`}
+            >
+              Balance {isNetPositive ? "surplus" : "deficit"}:{" "}
+              {formatCurrency(net)}
+            </span>
+          </div>
         </div>
 
         <TransactionsFilters
@@ -213,77 +372,24 @@ export function TransactionsDashboard() {
           setFilter={setFilter}
         />
 
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Card className="group rounded-2xl border border-emerald-500/25 bg-card/80 shadow-sm ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-500/45 hover:shadow-md dark:ring-white/10">
-            <CardContent className="flex items-center gap-4 p-5">
-              <div className="rounded-full bg-emerald-500/10 p-3 text-emerald-500 transition-transform duration-200 group-hover:scale-110 dark:bg-emerald-500/20">
-                <IconTrendingUp className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
-                  Filtered Income
-                </p>
-                <p className="mt-0.5 font-bold text-emerald-600 text-xl tabular-nums tracking-tight dark:text-emerald-500">
-                  {formatCurrency(totals.income)}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Expenses */}
-          <Card className="group rounded-2xl border border-rose-500/25 bg-card/80 shadow-sm ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5 hover:border-rose-500/45 hover:shadow-md dark:ring-white/10">
-            <CardContent className="flex items-center gap-4 p-5">
-              <div className="rounded-full bg-rose-500/10 p-3 text-rose-500 transition-transform duration-200 group-hover:scale-110 dark:bg-rose-500/20">
-                <IconTrendingDown className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
-                  Filtered Expenses
-                </p>
-                <p className="mt-0.5 font-bold text-rose-600 text-xl tabular-nums tracking-tight dark:text-rose-500">
-                  {formatCurrency(totals.expense)}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Net balance */}
-          <Card
-            className={`group rounded-2xl border bg-card/80 shadow-sm ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md dark:ring-white/10 ${
-              isNetPositive
-                ? "border-primary/25 hover:border-primary/45"
-                : "border-rose-500/25 hover:border-rose-500/45"
-            }`}
-          >
-            <CardContent className="flex items-center gap-4 p-5">
-              <div
-                className={`rounded-full p-3 transition-transform duration-200 group-hover:scale-110 ${
-                  isNetPositive
-                    ? "bg-primary/10 text-primary"
-                    : "bg-rose-500/10 text-rose-500 dark:bg-rose-500/20"
-                }`}
+        <Card className="overflow-hidden rounded-2xl border border-border/60 bg-card/80 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-border/50 border-b bg-muted/20 px-5 py-4">
+            <div>
+              <h2 className="font-semibold text-sm">Transactions Ledger</h2>
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
+                {filteredCount} visible of {totalCount} total entries
+              </p>
+            </div>
+            {activeFilterCount > 0 && (
+              <Badge
+                className="h-6 rounded-full px-2.5 text-[10px]"
+                variant="secondary"
               >
-                <IconWallet className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-semibold text-[11px] text-muted-foreground uppercase tracking-wider">
-                  Filtered Balance
-                </p>
-                <p
-                  className={`mt-0.5 font-bold text-xl tabular-nums tracking-tight ${
-                    isNetPositive
-                      ? "text-foreground"
-                      : "text-rose-600 dark:text-rose-500"
-                  }`}
-                >
-                  {formatCurrency(net)}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card className="overflow-hidden rounded-2xl border border-border/80 bg-card/80 shadow-sm ring-1 ring-black/5 dark:ring-white/10">
+                {activeFilterCount} filter{activeFilterCount === 1 ? "" : "s"}{" "}
+                applied
+              </Badge>
+            )}
+          </div>
           <CardContent className="p-0">
             {filteredTransactions.length === 0 ? (
               <div className="p-12">
@@ -302,8 +408,14 @@ export function TransactionsDashboard() {
               <TransactionsDataTable
                 onDelete={deleteTransaction}
                 onEdit={openEdit}
+                onSortChange={(sortBy, sortOrder) => {
+                  setFilter("sortBy", sortBy);
+                  setFilter("sortOrder", sortOrder);
+                }}
                 role={role}
                 rows={filteredTransactions}
+                sortBy={filters.sortBy}
+                sortOrder={filters.sortOrder}
               />
             )}
           </CardContent>

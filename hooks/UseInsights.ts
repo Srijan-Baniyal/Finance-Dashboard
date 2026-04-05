@@ -9,6 +9,7 @@ interface InsightSnapshot {
   averageMonthlySpend: number;
   biggestExpenseAmount: number;
   biggestExpenseLabel: string;
+  hasExpenseData: boolean;
   monthOverMonthExpenseDelta: number;
   savingsRate: number;
   topCategory: string;
@@ -99,6 +100,7 @@ export const useInsights = (transactions: Transaction[]): InsightSnapshot => {
       topCategoryAmount,
       monthOverMonthExpenseDelta,
       savingsRate,
+      hasExpenseData: expenses.length > 0,
       biggestExpenseLabel: biggestExpense?.description ?? "No expense found",
       biggestExpenseAmount: biggestExpense?.amount ?? 0,
       averageMonthlySpend,

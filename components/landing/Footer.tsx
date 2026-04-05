@@ -7,24 +7,40 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-border/40 border-t bg-zinc-50/50 pt-16 pb-8 dark:bg-zinc-950/50">
+    <footer className="relative overflow-hidden border-border/40 border-t bg-background pt-14 pb-8">
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-40 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-muted/35 via-background to-background" />
       <div className="container mx-auto max-w-6xl px-6">
-        <div className="grid gap-12 md:grid-cols-4 lg:grid-cols-5">
+        <div className="grid gap-10 rounded-2xl border border-border/60 bg-card/70 p-6 shadow-sm backdrop-blur-sm md:grid-cols-4 lg:grid-cols-5">
           <div className="space-y-4 md:col-span-2 lg:col-span-2">
-            <Link className="group flex w-fit items-center space-x-2" href="/">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-900 text-white transition-transform group-hover:scale-105 dark:bg-zinc-100 dark:text-zinc-900">
-                <span className="font-bold">FD</span>
+            <p className="font-medium text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+              Client-side Workspace
+            </p>
+            <Link className="group flex w-fit items-center gap-2.5" href="/">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-border/60 bg-background text-foreground shadow-sm transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-primary/40 group-hover:text-primary">
+                <span className="font-semibold text-sm">FD</span>
               </div>
-              <span className="font-bold text-lg tracking-tight">FinDash</span>
+              <span className="font-bold font-heading text-lg tracking-tight">
+                FinDash
+              </span>
             </Link>
-            <p className="max-w-xs pt-2 text-muted-foreground text-sm leading-relaxed">
+
+            <p className="max-w-sm text-muted-foreground text-sm leading-relaxed">
               A minimalist, open-source dashboard designed to help you take back
               control of your personal finances.
             </p>
+
+            <Link
+              className="inline-flex items-center rounded-full border border-border/70 px-4 py-2 font-medium text-sm transition-colors hover:bg-muted/50"
+              href="/overview"
+            >
+              Open Dashboard
+            </Link>
           </div>
 
           <div className="space-y-4">
-            <h4 className="font-semibold tracking-tight">Product</h4>
+            <h4 className="font-semibold text-[11px] uppercase tracking-[0.18em]">
+              Product
+            </h4>
             <ul className="space-y-3 text-muted-foreground text-sm">
               <li>
                 <Link
@@ -54,7 +70,9 @@ export function Footer() {
           </div>
 
           <div className="space-y-4">
-            <h4 className="font-semibold tracking-tight">Resources</h4>
+            <h4 className="font-semibold text-[11px] uppercase tracking-[0.18em]">
+              Resources
+            </h4>
             <ul className="space-y-3 text-muted-foreground text-sm">
               <li>
                 <Link
@@ -86,7 +104,9 @@ export function Footer() {
           </div>
 
           <div className="space-y-4">
-            <h4 className="font-semibold tracking-tight">Legal</h4>
+            <h4 className="font-semibold text-[11px] uppercase tracking-[0.18em]">
+              Legal
+            </h4>
             <ul className="space-y-3 text-muted-foreground text-sm">
               <li>
                 <Link
@@ -116,15 +136,10 @@ export function Footer() {
           </div>
         </div>
 
-        <Separator className="my-10 border-border/60" />
+        <Separator className="my-8 border-border/60" />
 
-        <div className="flex flex-col items-center justify-between gap-4 text-muted-foreground text-sm md:flex-row">
+        <div className="flex flex-col items-center justify-between gap-3 text-muted-foreground text-sm md:flex-row">
           <p>© {currentYear} FinDash. All rights reserved.</p>
-          <div className="flex items-center space-x-1">
-            <span>Built with</span>
-            <span className="animate-pulse text-red-500">♥</span>
-            <span>and shadcn/ui.</span>
-          </div>
         </div>
       </div>
     </footer>

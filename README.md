@@ -23,6 +23,8 @@ This phase includes:
 
 - Next.js App Router
 - React 19
+- TanStack React Query
+- Axios
 - Zustand
 - Recharts
 - Tailwind CSS
@@ -85,6 +87,7 @@ Optional enhancements included:
 - Dark mode
 - Local persistence (transactions + theme)
 - Export functionality (CSV/JSON)
+- Live market pulse card using React Query + Axios (CoinGecko)
 
 ## Project Structure
 
@@ -106,20 +109,22 @@ data/
 
 hooks/
   UseMobile.ts
-  useFilteredTransactions.ts
-  useInsights.ts
+  UseFilteredTransactions.ts
+  UseInsights.ts
+  UseMarketPulse.ts
 
 store/
-  useStore.ts
+  UseStore.ts
 
 types/
-  index.ts
+  Index.ts
 
 utils/
-  exportData.ts
-  formatters.ts
+  ExportData.ts
+  Formatters.ts
 
 lib/
+  Axios.ts
   Utils.ts
 ```
 

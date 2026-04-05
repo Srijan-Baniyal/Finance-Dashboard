@@ -32,7 +32,7 @@ export interface TransactionFilters {
   dateFrom: string;
   dateTo: string;
   search: string;
-  sortBy: "date" | "amount" | "category";
+  sortBy: "date" | "amount" | "category" | "description";
   sortOrder: "asc" | "desc";
   type: TransactionType | "all";
 }

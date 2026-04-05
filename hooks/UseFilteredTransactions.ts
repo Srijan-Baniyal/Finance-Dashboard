@@ -45,20 +45,6 @@ export const useFilteredTransactions = (): Transaction[] => {
       );
     }
 
-    result.sort((left, right) => {
-      const direction = filters.sortOrder === "asc" ? 1 : -1;
-
-      if (filters.sortBy === "amount") {
-        return (left.amount - right.amount) * direction;
-      }
-
-      if (filters.sortBy === "category") {
-        return left.category.localeCompare(right.category) * direction;
-      }
-
-      return left.date.localeCompare(right.date) * direction;
-    });
-
     return result;
   }, [transactions, filters]);
 };

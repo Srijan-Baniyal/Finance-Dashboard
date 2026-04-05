@@ -15,7 +15,7 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,14 +32,20 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import type { Role, Transaction } from "@/types/Index";
+import type { Role, Transaction, TransactionFilters } from "@/types/Index";
 import { formatDate, formatSignedAmount } from "@/utils/Formatters";
 
 interface TransactionsDataTableProps {
   onDelete: (id: string) => void;
   onEdit: (transaction: Transaction) => void;
+  onSortChange: (
+    sortBy: TransactionFilters["sortBy"],
+    sortOrder: TransactionFilters["sortOrder"]
+  ) => void;
   role: Role;
   rows: Transaction[];
+  sortBy: TransactionFilters["sortBy"];
+  sortOrder: TransactionFilters["sortOrder"];
 }
 
 const SortIcon = ({ isSorted }: { isSorted: false | "asc" | "desc" }) => {
@@ -74,10 +80,14 @@ export function TransactionsDataTable({
   role,
   onEdit,
   onDelete,
+  sortBy,
+  sortOrder,
+  onSortChange,
 }: TransactionsDataTableProps) {
-  const [sorting, setSorting] = useState<SortingState>([
-    { id: "date", desc: true },
-  ]);
+  const sorting = useMemo<SortingState>(
+    () => [{ id: sortBy, desc: sortOrder === "desc" }],
+    [sortBy, sortOrder]
+  );
 
   const columns = useMemo<ColumnDef<Transaction>[]>(() => {
     const base: ColumnDef<Transaction>[] = [
@@ -85,7 +95,7 @@ export function TransactionsDataTable({
         accessorKey: "date",
         header: ({ column }) => (
           <Button
-            className="group -ml-3 h-8 px-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider hover:bg-muted"
+            className="group -ml-2 h-8 rounded-md px-2.5 font-semibold text-muted-foreground text-xs uppercase tracking-wider hover:bg-muted"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             size="sm"
             type="button"
@@ -104,7 +114,7 @@ export function TransactionsDataTable({
         accessorKey: "description",
         header: ({ column }) => (
           <Button
-            className="group -ml-3 h-8 px-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider hover:bg-muted"
+            className="group -ml-2 h-8 rounded-md px-2.5 font-semibold text-muted-foreground text-xs uppercase tracking-wider hover:bg-muted"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             size="sm"
             type="button"
@@ -123,7 +133,7 @@ export function TransactionsDataTable({
         accessorKey: "category",
         header: ({ column }) => (
           <Button
-            className="group -ml-3 h-8 px-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider hover:bg-muted"
+            className="group -ml-2 h-8 rounded-md px-2.5 font-semibold text-muted-foreground text-xs uppercase tracking-wider hover:bg-muted"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             size="sm"
             type="button"
@@ -151,7 +161,7 @@ export function TransactionsDataTable({
         accessorKey: "amount",
         header: ({ column }) => (
           <Button
-            className="group -ml-3 h-8 px-3 font-semibold text-muted-foreground text-xs uppercase tracking-wider hover:bg-muted"
+            className="group -ml-2 h-8 rounded-md px-2.5 font-semibold text-muted-foreground text-xs uppercase tracking-wider hover:bg-muted"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             size="sm"
             type="button"
@@ -187,7 +197,7 @@ export function TransactionsDataTable({
             {row.original.note ? (
               `"${row.original.note}"`
             ) : (
-              <span className="not-italic opacity-40">—</span>
+              <span className="not-italic opacity-70">No notes</span>
             )}
           </div>
         ),
@@ -253,7 +263,26 @@ export function TransactionsDataTable({
     columns,
     state: { sorting },
     getRowId: (row) => row.id,
-    onSortingChange: setSorting,
+    onSortingChange: (updater) => {
+      const next = typeof updater === "function" ? updater(sorting) : updater;
+      const nextSort = next[0];
+
+      if (!nextSort) {
+        onSortChange("date", "desc");
+        return;
+      }
+
+      const rawSortBy = String(nextSort.id);
+      const supportedSortBy: TransactionFilters["sortBy"] =
+        rawSortBy === "date" ||
+        rawSortBy === "amount" ||
+        rawSortBy === "category" ||
+        rawSortBy === "description"
+          ? rawSortBy
+          : "date";
+
+      onSortChange(supportedSortBy, nextSort.desc ? "desc" : "asc");
+    },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
@@ -263,18 +292,16 @@ export function TransactionsDataTable({
 
   return (
     <TooltipProvider>
-      {/* ── Mobile card list ──────────────────────────────── */}
-      <div className="flex flex-col divide-y divide-border md:hidden">
+      <div className="grid gap-2 p-3 md:hidden">
         {table.getRowModel().rows.map((row) => {
           const transaction = row.original;
           const isExpense = transaction.type === "expense";
 
           return (
             <div
-              className="group flex flex-col gap-3 px-4 py-4 transition-colors hover:bg-muted/30"
+              className="group flex flex-col gap-3 rounded-xl border border-border/60 bg-background/60 px-3.5 py-3.5 shadow-sm transition-colors hover:bg-muted/35"
               key={row.id}
             >
-              {/* Top row */}
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-semibold text-foreground text-sm">
@@ -301,18 +328,14 @@ export function TransactionsDataTable({
                 </div>
               </div>
 
-              {/* Note */}
-              {transaction.note && (
-                <p className="truncate text-muted-foreground text-xs italic">
-                  "{transaction.note}"
-                </p>
-              )}
+              <p className="truncate text-muted-foreground text-xs italic">
+                {transaction.note ? `"${transaction.note}"` : "No notes"}
+              </p>
 
-              {/* Admin actions */}
               {role === "admin" && (
                 <div className="flex gap-2 border-border/50 border-t pt-3">
                   <Button
-                    className="h-8 flex-1 gap-1.5 bg-transparent text-xs hover:bg-primary/10 hover:text-primary"
+                    className="h-8 flex-1 gap-1.5 rounded-md border-border/70 bg-background text-xs hover:bg-primary/10 hover:text-primary"
                     onClick={() => onEdit(transaction)}
                     size="sm"
                     type="button"
@@ -322,7 +345,7 @@ export function TransactionsDataTable({
                     Edit
                   </Button>
                   <Button
-                    className="h-8 flex-1 gap-1.5 text-destructive text-xs hover:bg-destructive hover:text-destructive-foreground"
+                    className="h-8 flex-1 gap-1.5 rounded-md text-destructive text-xs hover:bg-destructive hover:text-destructive-foreground"
                     onClick={() => onDelete(transaction.id)}
                     size="sm"
                     type="button"
@@ -338,13 +361,12 @@ export function TransactionsDataTable({
         })}
       </div>
 
-      {/* ── Desktop table ─────────────────────────────────── */}
       <div className="hidden md:block">
         <Table>
-          <TableHeader className="bg-muted/40">
+          <TableHeader className="bg-muted/25">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow
-                className="border-border border-b hover:bg-muted/50"
+                className="border-border/70 border-b hover:bg-muted/45"
                 key={headerGroup.id}
               >
                 {headerGroup.headers.map((header) => {
@@ -375,7 +397,7 @@ export function TransactionsDataTable({
           <TableBody>
             {table.getRowModel().rows.map((row, rowIndex) => (
               <TableRow
-                className="border-border/60 border-b transition-colors last:border-0 hover:bg-muted/40"
+                className="border-border/60 border-b transition-colors last:border-0 hover:bg-muted/45 data-[even=true]:bg-muted/22"
                 data-even={rowIndex % 2 === 0}
                 key={row.id}
               >

@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-/* One-shot 360° spin – applied to the theme-toggle icon for a single frame */
 @keyframes spin-once {
   from {
     transform: rotate(0deg);
@@ -91,6 +90,21 @@
 }
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* Global scrollbar hide (keeps scroll interaction) */
+html,
+body,
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 @custom-variant dark (&:is(.dark *));
